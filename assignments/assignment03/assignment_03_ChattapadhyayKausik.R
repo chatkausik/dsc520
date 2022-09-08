@@ -1,13 +1,13 @@
 # Assignment: ASSIGNMENT 3
-# Name: Lastname, Firstname
-# Date: 2010-02-14
+# Name: Chattapadhyay, Kausik
+# Date: 2022-09-09
 
 ## Load the ggplot2 package
 library(ggplot2)
 theme_set(theme_minimal())
 
 ## Set the working directory to the root of your DSC 520 directory
-setwd("/home/jdoe/Workspaces/dsc520")
+setwd("/Users/kausik/desktop/MS Data Science/DSC 520/dsc520-stats-r-assignments")
 
 ## Load the `data/r4ds/heights.csv` to
 heights_df <- read.csv("data/r4ds/heights.csv")
