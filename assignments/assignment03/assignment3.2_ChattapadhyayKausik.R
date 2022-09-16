@@ -37,7 +37,8 @@ ncol(survey_df)
 ##          (the bin size will determine how many bars display and how wide they are)
 ##      2. Include a Title and and appropriate X/Y axis labels on your Histogram Plot.
 
-ggplot(data=survey_df, aes(x=HSDegree)) + geom_histogram(bins=25, binwidth = 2) +
+ggplot(data=survey_df, aes(x=HSDegree)) + geom_histogram(bins=25, binwidth = 1, 
+    fill="#51A8C9") +
     labs(title="HS Degree Distribution 2014", x = "High School Degree Percentage",
          y= "Frequency")
 
@@ -66,7 +67,8 @@ plot(survey_df$HSDegree, y)
 # Negatively skewed distribution
 
 ##      6. Include a normal curve to the Histogram that you plotted.
-ggplot(survey_df, aes(x=HSDegree)) + geom_histogram(aes(y=..density.., bins=25)) +
+ggplot(survey_df, aes(x=HSDegree)) + geom_histogram(aes(y=..density.., bins=25), 
+        fill="#51A8C9") +
     labs(title="HS Degree Distribution 2014", x = "High School Degree Percentage",
          y= "Frequency") + stat_function(fun=dnorm, color="red", 
         args=list(mean = mean(survey_df$HSDegree), sd = sd(survey_df$HSDegree)))
