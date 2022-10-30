@@ -1,0 +1,253 @@
+---
+title: "DSC 520 Final Project - Mental Health in the Tech industry"
+author: "Kausik Chattapadhyay"
+date: "2022-10-26"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction:
+
+All too often we may find ourselves joking around with someone in the tech industry and they may tell you that they must be nuts to be in this job. Even though we joke around about these things, if you suffer from mental health issues know you are not alone. This survey was completed to assess the presence of mental health issues in the tech industry. 
+
+# Problem Statement:
+
+* Is there a presence of mental health problems in the tech industry and does it impact how they perform their jobs? 
+
+* How you addressed this problem statement?
+
+* After cleaning up the survey results, we reviewed a series of questions to determine the impacts. 
+
+# Analysis. 
+
+* Out of the participants, what % are male compared to the % of females? 
+* Out of the male and female participants, what is the average age or age range? 
+* Out of those surveyed how many have family histories of mental health issues? 
+* Out of those with family history, what % are seeking treatment? 
+* Out of those surveyed how many works in the tech industry? 
+* In relationship to the tech industry, what are the average and the median age of females and males? 
+* What is the likelihood that someone working in the tech industry seeks treatment for mental health issues? 
+* Comparatively those females and males working in the tech industry that are seeking treatment to those not seeking treatment feel that their mental health interferes with work. 
+
+
+# Implications: 
+
+The results show that majority of those working in the tech industry are men. Of the men and women who survived a high percentage has a family history of mental health issues. Those who have this history have a high rate of seeking treatment for these health issues. Those who survived also have a higher rate of having health issues interfere with work, compared to when they are being treated. 
+
+# Limitations: 
+
+* The limits have to do with the data collected and how it was collected. When designed a survey like this it is best to make it multiple choice and limited fill-able areas. Because this form had so many areas that could be skipped or left blank a lot of the information was not usable. 
+
+* On a personal side there was a limitation in time and understand to dive deeper into the data. 
+
+
+## Reading and Setting up the Data Process
+```{r, message=FALSE, warning=FALSE}
+## Set the working directory to the root of your DSC 520 directory
+setwd("/Users/kausik/desktop/MS Data Science/DSC 520/dsc520-stats-r-assignments")
+
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(labeling)
+library(corpcor)
+library(ggpubr)
+library(MASS)
+library(ppcor)
+library(pastecs)
+library(psych)
+library(foreign)
+library(tidyr)
+```
+
+## Datasets:
+I used the dataset from Kaggle for my research. 3 datasets for 2016, 2019 and 2020.
+
+<https://www.kaggle.com/code/zakisher/mental-health-in-tech-analysis-prediction/data?select=mental-heath-in-tech-2016_20161114.csv>
+
+```{r}
+## Set the working directory to the root of your DSC 520 directory
+setwd("/Users/kausik/desktop/MS Data Science/DSC 520/dsc520-stats-r-assignments")
+OSMI2019 <- read_csv("data/OSMI_2019.csv")
+str(OSMI2019)
+```
+
+# First Update in the cleaning of the data
+
+```{r}
+tech2019 <- OSMI2019[, -c(1:3,5:21,23:27,33:47, 58:75 ),] # delete unneeded columns down to 24
+names(tech2019)
+head(tech2019)
+```
+
+# Data Summary
+
+```{r}
+summary(tech2019)
+```
+
+# Second update in Cleaning of Data
+```{r}
+tech_2019 <- tech2019[, -c(2:4,7,10:12,23,24)] # delete unneeded columns down to 15
+names(tech_2019)
+
+names(tech_2019)[names(tech_2019) == 'Is your primary role within your company related to tech/IT?'] <- 'C_role'
+names(tech_2019)[names(tech_2019) == '*Do you have previous employers?*'] <- 'TF_Pre_emp'
+names(tech_2019)[names(tech_2019) == 'Was your employer primarily a tech company/organization?'] <- 'P_role'
+names(tech_2019)[names(tech_2019) == 'Do you *currently* have a mental health disorder?'] <- 'C_MHealth'
+names(tech_2019)[names(tech_2019) == 'Have you ever been *diagnosed* with a mental health disorder?'] <- 'Diagnosed'
+names(tech_2019)[names(tech_2019) == 'Have you had a mental health disorder in the past?'] <- 'P_MHealth'
+names(tech_2019)[names(tech_2019) == 'Have you ever sought treatment for a mental health disorder from a mental health professional?'] <- 'Treatment'
+names(tech_2019)[names(tech_2019) == 'Do you have a family history of mental illness?'] <- 'FamHist'
+names(tech_2019)[names(tech_2019) == 'If you have a mental health disorder, how often do you feel that it interferes with your work *when being treated effectively?*'] <- 'Interfer'
+names(tech_2019)[names(tech_2019) == 'If you have a mental health disorder, how often do you feel that it interferes with your work *when* _*NOT*_* being treated effectively (i.e., when you are experiencing symptoms)?*'] <- 'Interfer_NT'
+names(tech_2019)[names(tech_2019) == 'What is your age?'] <- 'Age'
+names(tech_2019)[names(tech_2019) == 'What is your gender?'] <- 'Gender_IDT'
+names(tech_2019)[names(tech_2019) == 'What country do you *live* in?'] <- 'Country'
+names(tech_2019)[names(tech_2019) == 'What US state or territory do you *live* in?'] <- 'StateTerr'
+names(tech_2019)[names(tech_2019) == 'What is your race?'] <- 'race'
+summary(tech_2019)
+```
+
+# Current Data Structure
+
+```{r}
+str(tech_2019)
+```
+
+# Updating objectives
+#Yes to True, No to False #Updating Gender to three types: Male, Female and Other
+
+```{r}
+tech_2019[tech_2019 == "Yes"] <- "TRUE"
+tech_2019[tech_2019 == "No"] <- "FALSE"
+tech_2019[tech_2019 == "m"] <- "Male"
+tech_2019[tech_2019 == "M"] <- "Male"
+tech_2019[tech_2019 == "male"] <- "Male"
+tech_2019[tech_2019 == "Cishet male"] <- "Male"
+tech_2019[tech_2019 == "cis male"] <- "Male"
+tech_2019[tech_2019 == "Cis Male"] <- "Male"
+tech_2019[tech_2019 == "CIS Male"] <- "Male"
+tech_2019[tech_2019 == "I have a penis"] <- "Male"
+tech_2019[tech_2019 == "Identify as male"] <- "Male"
+tech_2019[tech_2019 == "Masculine"] <- "Male"
+tech_2019[tech_2019 == "masculino"] <- "Male"
+tech_2019[tech_2019 == "Trans man"] <- "Male"
+tech_2019[tech_2019 == "man"] <- "Male"
+tech_2019[tech_2019 == "Man"] <- "Male"
+tech_2019[tech_2019 == "Make"] <- "Male"
+tech_2019[tech_2019 == "make"] <- "Male"
+tech_2019[tech_2019 == "cis woman"] <- "Female"
+tech_2019[tech_2019 == "Agender trans woman"] <- "Female"
+tech_2019[tech_2019 == "Female-identified"] <- "Female"
+tech_2019[tech_2019 == "Female (cis)"] <- "Female"
+tech_2019[tech_2019 == "Femile"] <- "Female"
+tech_2019[tech_2019 == "femmina"] <- "Female"
+tech_2019[tech_2019 == "woman"] <- "Female"
+tech_2019[tech_2019 == "Woman"] <- "Female"
+tech_2019[tech_2019 == "F"] <- "Female"
+tech_2019[tech_2019 == "f"] <- "Female"
+tech_2019[tech_2019 == "female"] <- "Female"
+tech_2019[tech_2019 == "agender"] <- "Other"
+tech_2019[tech_2019 == "I am a Wookie"] <- "Other"
+tech_2019[tech_2019 == "Non-binary"] <- "Other"
+tech_2019[tech_2019 == "Non-binary and gender fluid"] <- "Other"
+tech_2019[tech_2019 == "Non binary"] <- "Other"
+tech_2019[tech_2019 == "Nonbinary"] <- "Other"
+tech_2019[tech_2019 == "None"] <- "Other"
+tech_2019[tech_2019 == "Questioning"] <- "Other"
+tech_2019[tech_2019 == "rr"] <- "Other"
+tech_2019[tech_2019 == "Trans non-binary/genderfluid"] <- "Other"
+tech_2019 <- tech_2019 %>%
+  mutate_at(c('Gender_IDT'), ~replace_na(.,"Other"))
+tech_2019$Gender_IDT[tech_2019$Gender_IDT == "NA"] <- "Other"
+tech_2019$Gender_IDT[tech_2019$Gender_IDT == "43"] <- "Other"
+tech_2019$Gender_IDT[startsWith(tech_2019$Gender_IDT, "Let's keep it simple")] <- "Male"
+tech_2019$Gender_IDT[tech_2019$Gender_IDT == "Na"] <- "Other"
+tech_2019$Gender_IDT[tech_2019$Gender_IDT == "na"] <- "Other"
+tech_2019$Gender_IDT[tech_2019$Gender_IDT == ""] <- "Other"
+tech_2019[tech_2019 == "White"] <- "Caucasian" 
+tech_2019[tech_2019 == "Hispanic"] <- "Caucasian" 
+tech_2019[tech_2019 == "White Hispanic"] <- "Caucasian" 
+tech_2019[tech_2019 == "Black or African American"] <- "Black"
+tech_2019[tech_2019 == "I prefer not to answer"] <- "Undisclosed"
+tech_2019[tech_2019 == "More than one of the above"] <- "Other"
+tech_2019[tech_2019 == "I don't know"] <- "Unknown"
+tech_2019[tech_2019 == "European American"] <- "Other"
+tech_2019$StateTerr[tech_2019$StateTerr == ""] <- "Undisclosed/Non-Us"
+tech_2019A <- tech_2019
+
+cc = is.na(tech_2019$C_role)
+m = which(cc == c("TRUE"))
+tech_2019 = tech_2019[-m,]
+tech_2019B <- tech_2019
+summary(tech_2019)
+```
+
+```{r}
+tech_2019 <- na.omit(tech_2019)
+summary(tech_2019)
+str(tech_2019)
+```
+
+# Updated Factors in filtered Data Frame
+
+```{r}
+tech_2019C <- tech_2019
+tech_2019 <- as.data.frame(unclass(tech_2019), stringsAsFactors = TRUE)
+#tech_2019 <- stringsAsFactors(tech_2019)
+str(tech_2019)
+```
+
+# New Summary
+
+```{r}
+summary(tech_2019)
+```
+
+# Updated Factors Cleaned Role Data Frame
+
+```{r}
+tech_2019D <- tech_2019B
+tech_2019D <- as.data.frame(unclass(tech_2019D), stringsAsFactors = TRUE)
+str(tech_2019D)
+```
+
+# New Summary Only Role cleaned
+
+```{r}
+summary(tech_2019D)
+```
+
+# Linear Model for age and gender
+
+```{r}
+LMGender_Age <- lm(Age ~ Gender_IDT, data = tech_2019)
+summary(LMGender_Age)
+```
+
+# LinearModel for age, current role and gender
+
+```{r}
+LMGender_Role <- lm(Age ~ C_role + Gender_IDT, data = tech_2019)
+summary(LMGender_Role)
+```
+
+# Percentage of genders Full Survey
+```{r}
+f <- table(tech_2019B$Gender_IDT)
+f
+pie_labels <- paste0(round(100 * f/sum(f), 2), "%")
+pie(f,main = "Genders In the Tech Industry", labels = pie_labels)
+legend("topleft", legend = c("Male", "Female", "Others"),
+       fill =  c("white", "lightblue", "mistyrose"))
+```
+
+**Next Step:**
+Do more data clean ups for other years and more visualizations and trying to fit models.
+
