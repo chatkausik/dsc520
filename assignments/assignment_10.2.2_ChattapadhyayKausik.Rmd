@@ -1,0 +1,71 @@
+---
+title: "Assignment_10.2.2_Fit a Logistic Regression Model"
+author: "Kausik Chattapadhyay"
+date: "`r Sys.Date()`"
+output: pdf_document
+---
+## Assignment
+**Fit a logistic regression model to the binary-classifier-data.csv dataset from the previous assignment.**
+ 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r echo=TRUE, include=TRUE}
+## Set the working directory to the root of your DSC 520 directory 
+setwd("/Users/kausik/desktop/MS Data Science/DSC 520/dsc520-stats-r-assignments")
+library(caTools)
+library('foreign')
+set.seed(101) 
+data_df <- read.csv("data/binary-classifier-data.csv")
+head(data_df)
+
+# Split the data into train(80%) and test(20%).
+split <- sample.split(data_df, SplitRatio = 0.80)
+train <- subset(data_df, split == TRUE)
+test <- subset(data_df, split == FALSE)
+
+#logistic regression model with 80% train data
+data_glm <- glm(label ~ x + y, data=train, family = binomial)
+
+summary(data_glm)
+
+```
+
+```{r echo=TRUE, include=TRUE} 
+# Predict the train and test data with model
+
+res_train <- predict(data_glm, train, type="response")
+res_test <- predict(data_glm, test, type="response")
+
+# validate the model- confusion matrix
+
+## Train Data confusion Matrix
+confusion_mat_train <- table(Actual_Value=train$label, 
+                             Predicted_Value=res_train >0.5)
+confusion_mat_train
+
+## Test Data Confusion Matrix
+confusion_mat_test <- table(Actual_Value=test$label, 
+                            Predicted_Value=res_test >0.5)
+confusion_mat_test
+
+## Train Accuracy
+modelAccuracy_train <- (confusion_mat_train[[1,1]] + confusion_mat_train[[2,2]]) / sum(confusion_mat_train)
+modelAccuracy_train
+
+## Test Accuracy
+modelAccuracy_test <- (confusion_mat_test[[1,1]] + confusion_mat_test[[2,2]]) / sum(confusion_mat_test)
+modelAccuracy_test
+
+```
+
+## Question A:
+**What is the accuracy of the logistic regression classifier?**
+
+## Answer for A:
+```
+The accuracy came out to be 58% both for 80% train data and 20% set aside test data.
+Accuracy is not good so the logistic regression doesn't fit well with the data.
+```
+

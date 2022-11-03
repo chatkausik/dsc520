@@ -1,0 +1,153 @@
+---
+title: "Assignment 10.2.1 Thoracic Surgery Binary Analysis"
+author: "Kausik Chattapadhyay"
+date: "2022-11-02"
+output:
+  pdf_document: default
+  word_document: default
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction:
+
+For this problem, you will be working with the thoracic surgery data set from the 
+University of California Irvine machine learning repository. This data set contains 
+information on life expectancy in lung cancer patients after surgery. The underlying 
+thoracic surgery data is in ARFF format. This is a text-based format with information 
+on each of the attributes. You can load this data using a package such as foreign or 
+by cutting and pasting the data section into a CSV file.
+
+## Data Set Information:
+
+The data was collected retrospectively at Wroclaw Thoracic Surgery Centre for 
+patients who underwent major lung resections for primary lung cancer in the years
+2007â€“2011. The Centre is associated with the Department of Thoracic Surgery of 
+the Medical University of Wroclaw and Lower-Silesian Centre for Pulmonary Diseases, 
+Poland, while the research database constitutes a part of the National Lung Cancer 
+Registry, administered by the Institute of Tuberculosis and Pulmonary Diseases 
+in Warsaw, Poland.
+
+
+## Attribute Information:
+
+```
+1. DGN: Diagnosis - specific combination of ICD-10 codes for primary and secondary 
+                    as well multiple tumours if any (DGN3,DGN2,DGN4,DGN6,DGN5,DGN8,
+                    DGN1) 
+2. PRE4: Forced vital capacity - FVC (numeric) 
+3. PRE5: Volume that has been exhaled at the end of the first second of forced 
+         expiration - FEV1 (numeric) 
+4. PRE6: Performance status - Zubrod scale (PRZ2,PRZ1,PRZ0) 
+5. PRE7: Pain before surgery (T,F) 
+6. PRE8: Haemoptysis before surgery (T,F) 
+7. PRE9: Dyspnoea before surgery (T,F) 
+8. PRE10: Cough before surgery (T,F) 
+9. PRE11: Weakness before surgery (T,F) 
+10. PRE14: T in clinical TNM - size of the original tumour, 
+           from OC11 (smallest) to OC14 (largest) (OC11,OC14,OC12,OC13) 
+11. PRE17: Type 2 DM - diabetes mellitus (T,F) 
+12. PRE19: MI up to 6 months (T,F) 
+13. PRE25: PAD - peripheral arterial diseases (T,F) 
+14. PRE30: Smoking (T,F) 
+15. PRE32: Asthma (T,F) 
+16. AGE: Age at surgery (numeric) 
+17. Risk1Y: 1 year survival period - (T)rue value if died (T,F) 
+
+Class Distribution: the class value (Risk1Y) is binary valued. 
+
+
+```
+
+
+## Question A:
+**Fit a binary logistic regression model to the data set that predicts whether or not the patient survived for one year (the Risk1Y variable) after the surgery. Use the glm() function to perform the logistic regression.**
+
+## Answer for A
+```{r echo=TRUE, include=TRUE}
+## Set the working directory to the root of your DSC 520 directory 
+setwd("/Users/kausik/desktop/MS Data Science/DSC 520/dsc520-stats-r-assignments")
+library(caTools)
+library('foreign')
+set.seed(101) 
+thoracicSurgery_df <- read.arff("data/ThoraricSurgery.arff")
+head(thoracicSurgery_df)
+
+# Split the data into train(80%) and test(20%).
+split <- sample.split(thoracicSurgery_df, SplitRatio = 0.80)
+train <- subset(thoracicSurgery_df, split == TRUE)
+test <- subset(thoracicSurgery_df, split == FALSE)
+
+#logistic regression model with 80% train data
+thoracicSurgery_glm <- glm(Risk1Yr ~ DGN + PRE4 + PRE5 + PRE6 + PRE7 + PRE8 + 
+PRE9 + PRE10 + PRE11 + PRE14 + PRE17 + PRE19 + PRE25 + PRE30 + PRE32 + AGE, 
+data=train, family = binomial)
+
+summary(thoracicSurgery_glm)
+
+
+```
+
+## Question B. 
+**According to the summary, which variables had the greatest effect on the survival rate?**
+
+## Answer for B:
+```
+ The following variables had the greatest effect on the survival rate (based on P value): 
+ 1. PRE9T - Indicates whether the patient had Dyspnoea before surgery.
+ 2. PRE14OC14 - The largest size of the original tumor.
+ 3. PRE17T - This variable indicates whether the patient had Type 2 Diabetes.
+ 4. PRE30T - Indicates that patient is a smoker. 
+ 5. PRE14OC13 - The second largest size of the tumor.
+ 6. PRE5 - Volume that has been exhaled at the end of the first second of forced 
+           expiration 
+```
+## Question C:
+**To compute the accuracy of your model, use the dataset to predict the outcome 
+variable. The percent of correct predictions is the accuracy of your model. 
+What is the accuracy of your model?**
+
+## Answer For C
+```
+The accuracy of the model is 82% for set aside test data though train data has 
+87% accuracy, so we can conclude that our model is correct in predicting the outcome.
+```
+
+
+```{r echo=TRUE, include=TRUE} 
+# Predict the train and test data with model
+
+res_train <- predict(thoracicSurgery_glm, train, type="response")
+res_test <- predict(thoracicSurgery_glm, test, type="response")
+
+# validate the model- confusion matrix
+
+## Train Data confusion Matrix
+confusion_mat_train <- table(Actual_Value=train$Risk1Yr, 
+                             Predicted_Value=res_train >0.5)
+confusion_mat_train
+
+## Test Data Confusion Matrix
+confusion_mat_test <- table(Actual_Value=test$Risk1Yr, 
+                            Predicted_Value=res_test >0.5)
+confusion_mat_test
+
+## Train Accuracy
+modelAccuracy_train <- (confusion_mat_train[[1,1]] + confusion_mat_train[[2,2]]) / sum(confusion_mat_train)
+modelAccuracy_train
+
+## Test Accuracy
+modelAccuracy_test <- (confusion_mat_test[[1,1]] + confusion_mat_test[[2,2]]) / sum(confusion_mat_test)
+modelAccuracy_test
+
+```
+
+
+**Set aside Test accuracy for this model is 82% though Train accuracy is 87%.
+so we can conclude that our model is correct in predicting the outcome.**
+
+
+
+
