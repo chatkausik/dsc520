@@ -248,6 +248,95 @@ legend("topleft", legend = c("Male", "Female", "Others"),
        fill =  c("white", "lightblue", "mistyrose"))
 ```
 
-**Next Step:**
-Do more data clean ups for other years and more visualizations and trying to fit models.
+# LinearModel for age, current role and gender
+
+```{r}
+LMGender_Role <- lm(Age ~ C_role + Gender_IDT, data = tech_2019)
+summary(LMGender_Role)
+```
+
+# LinearModel for age and family history
+
+```{r}
+LMFamilyHist <- lm(Age ~ FamHist, data = tech_2019)
+summary(LMFamilyHist)
+```
+
+# LinearModel for age, family history and treatment
+
+```{r}
+LMFamHistTreat <- lm(Age ~ FamHist + Treatment, data = tech_2019)
+summary(LMFamHistTreat)
+```
+
+# LinearModel for age, current role and treatment
+
+```{r}
+LMRoleTreatment <- lm(Age ~ Treatment +  C_role, data = tech_2019)
+summary(LMRoleTreatment)
+```
+
+# LinearModel for age, gender, current role, treatment and job interference
+
+```{r}
+LMInterfer <- lm(Age ~ Treatment + C_role + Gender_IDT + Interfer + Interfer_NT, data = tech_2019)
+summary(LMInterfer)
+```
+
+## Percentage of genders Cleaned Primary Role
+
+```{r}
+f <- table(tech_2019D$Gender_IDT)
+f
+pie_labels <- paste0(round(100 * f/sum(f), 2), "%")
+pie(f,main = "Genders In the Tech Industry", labels = pie_labels)
+legend("topleft", legend = c("Male", "Female", "Others"),
+       fill =  c("white", "lightblue", "mistyrose"))
+```
+
+## Survey
+
+```{r}
+f <- table(tech_2019$Gender_IDT)
+f
+pie_labels <- paste0(round(100 * f/sum(f), 2), "%")
+pie(f,main = "Genders of Participants", labels = pie_labels)
+legend("topleft", legend = c("Male", "Female", "Others"),
+       fill =  c("white", "lightblue", "mistyrose"))
+```
+
+## Age and Gender
+
+```{r}
+
+ggplot(tech_2019, aes(x=Age, color=Gender_IDT)) + geom_histogram() + facet_wrap(~Gender_IDT)
+
+```
+
+## % of those surveyed with a family history of mental health issues.
+```{r}
+f <- table(tech_2019$FamHist)
+f
+pie_labels <- paste0(round(100 * f/sum(f), 2), "%")
+pie(f,main = "Family History %", labels = pie_labels)
+legend("topleft", legend = c("False", "True", "Unknown"),
+       fill =  c("white", "lightblue", "mistyrose"))
+```
+
+## Mental health interfers in work while being treated
+
+## Next step
+
+* More analysis and visualization regarding "Percent of those with a Family History seaking treatement".
+
+* Also "Mental health interfers in work while being treated".
+
+* Will fit the model with Linear Regression and other machine learning models.
+
+* Predict the outcome with set aside 2020 data and publish the score for accuracy.
+
+* Answer all the questions as part of my research.
+
+* Make it final ready with many visualizations.
+
 
