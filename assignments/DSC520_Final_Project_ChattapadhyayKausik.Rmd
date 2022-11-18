@@ -1,7 +1,7 @@
 ---
 title: "DSC 520 Final Project - Mental Health in the Tech industry"
 author: "Kausik Chattapadhyay"
-date: "2022-10-26"
+date: "2022-11-17"
 output:
   pdf_document: default
   word_document: default
@@ -15,7 +15,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 All too often we may find ourselves joking around with someone in the tech industry and they may tell you that they must be nuts to be in this job. Even though we joke around about these things, if you suffer from mental health issues know you are not alone. This survey was completed to assess the presence of mental health issues in the tech industry. 
 
-# Problem Statement:
+## Problem Statement:
 
 * Is there a presence of mental health problems in the tech industry and does it impact how they perform their jobs? 
 
@@ -23,27 +23,60 @@ All too often we may find ourselves joking around with someone in the tech indus
 
 * After cleaning up the survey results, we reviewed a series of questions to determine the impacts. 
 
-# Analysis. 
+## Analysis. 
 
 * Out of the participants, what % are male compared to the % of females? 
+  
+  Ans: 51% Male, 45% Female and 5% other.
+
 * Out of the male and female participants, what is the average age or age range? 
+
+  Ans: Age Median is 35 (Female 34, Male 36, Other 34).
+
 * Out of those surveyed how many have family histories of mental health issues? 
+
+  Ans: 66% have a family history of mental health issues.
+
 * Out of those with family history, what % are seeking treatment? 
+
+  Ans: Of the 66% with a family history, 100% are seeking treatment.
+       Of the 10% that are not and 24% with an unknown family history, 
+       only 2% are not seeking treatment.
+
 * Out of those surveyed how many works in the tech industry? 
+
+  Ans: 89% are in the tech industry in their current role, but only 49% was previously.
+
 * In relationship to the tech industry, what are the average and the median age of females and males? 
+
+  Ans: The average age is 36. The average age for Females is 35 in the industry and 31 
+       The average age for Males is 36 in the industry and 30 out 
+       The average of the other is 34
+
 * What is the likelihood that someone working in the tech industry seeks treatment for mental health issues? 
-* Comparatively those females and males working in the tech industry that are seeking treatment to those not seeking treatment feel that their mental health interferes with work. 
 
+ Ans:Currently, 98% of those survey is seeking treatment.
 
-# Implications: 
+* Comparatively those females and males working in the tech industry that are seeking 
+treatment to those not seeking treatment feel that their mental health interferes with work. 
+
+  Ans: 63% of those who are in the tech industry say that they often have interference 
+      from their mental health at work while untreated. 
+      While only 8% often have interference in their work when receiving treatment.
+
+## Implications: 
 
 The results show that majority of those working in the tech industry are men. Of the men and women who survived a high percentage has a family history of mental health issues. Those who have this history have a high rate of seeking treatment for these health issues. Those who survived also have a higher rate of having health issues interfere with work, compared to when they are being treated. 
 
-# Limitations: 
+## Limitations: 
 
 * The limits have to do with the data collected and how it was collected. When designed a survey like this it is best to make it multiple choice and limited fill-able areas. Because this form had so many areas that could be skipped or left blank a lot of the information was not usable. 
 
 * On a personal side there was a limitation in time and understand to dive deeper into the data. 
+
+## Concluding Remarks: 
+
+* As a person with mental health issues that works in the tech industry, it was nice to conclude that I am not alone and it is more common than I suspected.
 
 
 ## Reading and Setting up the Data Process
@@ -318,25 +351,163 @@ ggplot(tech_2019, aes(x=Age, color=Gender_IDT)) + geom_histogram() + facet_wrap(
 f <- table(tech_2019$FamHist)
 f
 pie_labels <- paste0(round(100 * f/sum(f), 2), "%")
-pie(f,main = "Family History %", labels = pie_labels)
-legend("topleft", legend = c("False", "True", "Unknown"),
-       fill =  c("white", "lightblue", "mistyrose"))
+
+```
+
+# Treatment
+```{r}
+library(gplots)
+library(ggpubr)
+
+ggline(tech_2019, x = "FamHist", y = "Age", color = "Treatment",
+ add = "mean_se", palette = c("#00AFBB", "#E7B800"),
+ main="Plot of Means",
+ xlab="FamHist",
+ ylab="Mean of Age",
+ legend="right")
+
+```
+
+# Percent of those with a Family History seaking treatement
+
+```{r}
+library(ggpubr)
+library(dplyr)
+tech_df <- tech_2019 %>% 
+  count(Treatment, FamHist) %>%
+  mutate(pct = n / sum(n),
+         pct_label = scales::percent(pct))
+
+ggplot(tech_df, aes(x= Treatment, fill = FamHist, y = pct)) +
+  geom_col() +
+  geom_text(aes(label = paste(pct_label, n, sep = "\n")), 
+                lineheight = 0.8,
+                position = position_stack(vjust = 0.5)) +
+  scale_y_continuous(labels = scales::percent) +
+   labs(title="Family History seaking treatement", x= "Treatment", y = "Percent")
+
+
+```
+
+## Count in Current Tech role
+
+```{r}
+library(ggpubr)
+library(dplyr)
+tech_df <- tech_2019 %>% 
+  count(C_role, Gender_IDT) %>%
+  mutate(pct = n / sum(n),
+         pct_label = scales::percent(pct))
+
+ggplot(tech_df, aes(x= C_role, fill = Gender_IDT, y = pct)) +
+  geom_col() +
+  geom_text(aes(label = paste(pct_label, n, sep = "\n")), 
+                lineheight = 0.8,
+                position = position_stack(vjust = 0.5)) +
+  scale_y_continuous(labels = scales::percent) +
+   labs(title="Current Tech Role", x= "Current Role", y = "Percent")
+
+
+```
+
+
+## Current Tech Role
+
+```{r}
+f <- table(tech_2019$C_role)
+f
+pie_labels <- paste0(round(100 * f/sum(f), 2), "%")
+pie(f,main = "Current Tech Role", labels = pie_labels)
+legend("topleft", legend = c("FALSE", "TRUE"),
+       fill =  c("white", "lightblue"))
+```
+
+## Previous Tech Role
+
+```{r}
+f <- table(tech_2019$P_role)
+f
+pie_labels <- paste0(round(100 * f/sum(f), 2), "%")
+pie(f,main = "Previous Tech Role", labels = pie_labels)
+legend("topleft", legend = c("FALSE", "TRUE"),
+       fill =  c("white", "lightblue"))
+```
+
+## median age of those in the tech industry
+
+```{r}
+t.test(Age~C_role, alternative = 'two.sided', conf.level = .95, var.equal = FALSE, data = tech_2019)
+
+library(ggpubr)
+
+ggline(tech_2019, x = "C_role", y = "Age",
+ add = "mean_se", palette = c("#00AFBB", "#E7B800"),
+ main="C_role effect plot",
+ xlab="C_role",
+ ylab="Age",
+ legend="right")
+
+ggline(tech_2019, x = "Gender_IDT", y = "Age",
+ add = "mean_se", palette = c("#00AFBB", "#E7B800"),
+ main="Gender_IDT effect plot",
+ xlab="Gender_IDT",
+ ylab="Age",
+ legend="right")
+
+ggline(tech_2019, x = "Gender_IDT", y = "Age", color = "C_role",
+ add = "mean_se", palette = c("#00AFBB", "#E7B800"),
+ main="Age and Role",
+ xlab="Gender",
+ ylab="Mean of Age",
+ legend="right")
+
+```
+
+## Percent seeking treatement
+
+```{r}
+f <- table(tech_2019$Treatment)
+f
+pie_labels <- paste0(round(100 * f/sum(f), 2), "%")
+pie(f,main = "Seeking Treatment", labels = pie_labels)
+legend("topleft", legend = c("FALSE", "TRUE"),
+       fill =  c("white", "lightblue"))
 ```
 
 ## Mental health interfers in work while being treated
 
-## Next step
+# Receiving Treatment
+```{r}
+library(dplyr)
+tech_df <- tech_2019 %>% 
+  count(Interfer, C_role) %>%
+  mutate(pct = n / sum(n),
+         pct_label = scales::percent(pct))
 
-* More analysis and visualization regarding "Percent of those with a Family History seaking treatement".
+ggplot(tech_df, aes(x= Interfer, fill = C_role, y = pct)) +
+  geom_col() +
+  geom_text(aes(label = paste(pct_label, n, sep = "\n")), 
+                lineheight = 0.8,
+                position = position_stack(vjust = 0.5)) +
+  scale_y_continuous(labels = scales::percent) +
+   labs(title="Receiving Treatment", x= "Interfer with Work", y = "Percent")
+```
 
-* Also "Mental health interfers in work while being treated".
+# while not recieving treatment
+```{r}
+library(dplyr)
+tech_df <- tech_2019 %>% 
+  count(Interfer_NT, C_role) %>%
+  mutate(pct = n / sum(n),
+         pct_label = scales::percent(pct))
 
-* Will fit the model with Linear Regression and other machine learning models.
-
-* Predict the outcome with set aside 2020 data and publish the score for accuracy.
-
-* Answer all the questions as part of my research.
-
-* Make it final ready with many visualizations.
+ggplot(tech_df, aes(x= Interfer_NT, fill = C_role, y = pct)) +
+  geom_col() +
+  geom_text(aes(label = paste(pct_label, n, sep = "\n")), 
+                lineheight = 0.8,
+                position = position_stack(vjust = 0.5)) +
+  scale_y_continuous(labels = scales::percent) +
+  labs(title="Untreated Health", x= "Interfer with Work", y = "Percent")
+```
 
 
